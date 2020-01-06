@@ -22,7 +22,12 @@ struct bedline {
   int istrand;
   bedline(const string&);
 bedline() : chrom("0"), start(0), end(1) {};
-  bool operator<(const bedline&) const;
+  bool operator<(const bedline&) const;  
+  double midpoint();
+
+private:
+  double the_midpoint;
+  bool set_midpoint;
 };
 
 
@@ -33,7 +38,15 @@ struct bgdline {
     end;
   double value;
   bgdline(const string&);
+  double midpoint();
+
+private:
+  double the_midpoint;
+  bool set_midpoint;
+
 };
+
+
 
 
 #endif

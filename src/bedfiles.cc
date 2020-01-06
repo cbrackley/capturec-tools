@@ -12,7 +12,7 @@
 using namespace std;
 
 
-bedline::bedline(const string &line) {
+bedline::bedline(const string &line) : set_midpoint(false) {
   // Convert a string into a bedline object
   stringstream sline;
   sline.str(line);
@@ -27,6 +27,7 @@ bedline::bedline(const string &line) {
 }
 
 
+
 bool bedline::operator<(const bedline &b) const {
   if ( chrom != b.chrom ) {
     return chrom<b.chrom;
@@ -37,11 +38,29 @@ bool bedline::operator<(const bedline &b) const {
   }
 }
 
+double bedline::midpoint() {
+  // Find the midpoint (bp) of the region
+  if (!set_midpoint) {
+    the_midpoint = 0.5*(start+end);
+    set_midpoint = true;
+  }
+  return the_midpoint;
+}
 
 
-bgdline::bgdline(const string &line) {
+
+bgdline::bgdline(const string &line) : set_midpoint(false) {
   // Convert a string into a bedline object
   stringstream sline;
   sline.str(line);
   sline>>chrom>>start>>end>>value;
+}
+
+double bgdline::midpoint() {
+  // Find the midpoint (bp) of the region
+  if (!set_midpoint) {
+    the_midpoint = 0.5*(start+end);
+    set_midpoint = true;
+  }
+  return the_midpoint;
 }
