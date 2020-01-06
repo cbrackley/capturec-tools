@@ -15,7 +15,10 @@ directionality_SRC =	directionality.cc	\
 log_reads_v_separation_SRC = 	log_reads_v_separation.cc	\
 				bedfiles.cc
 
-executables = directionality log_reads_v_separation
+local_v_long_SRC = 	local_v_long.cc	\
+			bedfiles.cc
+
+executables = directionality log_reads_v_separation local_v_long
 
 all: $(executables)
 
@@ -24,6 +27,9 @@ directionality: $(directionality_SRC:%.cc=$(OBJDIR)/%.o)
 	$(CXX) $(CFLAGS) -o $@ $^
 
 log_reads_v_separation: $(log_reads_v_separation_SRC:%.cc=$(OBJDIR)/%.o)
+	$(CXX) $(CFLAGS) -o $@ $^
+
+local_v_long: $(local_v_long_SRC:%.cc=$(OBJDIR)/%.o)
 	$(CXX) $(CFLAGS) -o $@ $^
 
 

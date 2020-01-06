@@ -1,7 +1,7 @@
 #!/bin/bash
 #//***************************************************************************
 #//
-#// Program to get mean reads vs genomic separation with logarythmicly 
+#// Program to get mean reads vs genomic separation with logarithmically 
 #// spaced bins.
 #//
 #//***************************************************************************
@@ -32,3 +32,16 @@ make
 # Command line options are explained if the program is run with no arguments.
 # An example command line is:
 ./log_reads_v_separation -t ../Data/targets.bed -f example_filelist.txt -o example_log_reads_sep.dat
+
+
+# This can be plotted, e.g. using gnuplot
+gnuplot --persist <<EOF
+
+set title "average over all probes"
+set logscale x
+set ylabel "log(reads per kbp)"
+set xlabel "genomic separation [bp]"
+p "example_log_reads_sep.dat" u 4:2:3 w errorlines pt 7 title "WT G2",\
+"example_log_reads_sep2.dat" u 4:2:3 w errorlines pt 7 title "M G2"
+
+EOF
