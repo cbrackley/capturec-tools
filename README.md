@@ -1,6 +1,6 @@
 # CaptureC-tools
 
-Some programs for downstream analysis of CaptureC data.
+Some programs for downstream analysis of CaptureC data. All can be compiled using the same Makefile with the command 'make'.
 
 #### directionality 
 Program to measure any bias in the direction of interactions from a set of CaptureC interaction profiles. Gives a value for each profile/probe. Previously I think I called this asymmetry.
