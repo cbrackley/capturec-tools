@@ -18,7 +18,10 @@ log_reads_v_separation_SRC = 	log_reads_v_separation.cc	\
 local_v_long_SRC = 	local_v_long.cc	\
 			bedfiles.cc
 
-executables = directionality log_reads_v_separation local_v_long
+find_aretfacts_SRC =	find_aretfacts.cc	\
+			bedfiles.cc
+
+executables = directionality log_reads_v_separation local_v_long find_aretfacts
 
 all: $(executables)
 
@@ -32,6 +35,8 @@ log_reads_v_separation: $(log_reads_v_separation_SRC:%.cc=$(OBJDIR)/%.o)
 local_v_long: $(local_v_long_SRC:%.cc=$(OBJDIR)/%.o)
 	$(CXX) $(CFLAGS) -o $@ $^
 
+find_aretfacts: $(find_aretfacts_SRC:%.cc=$(OBJDIR)/%.o)
+	$(CXX) $(CFLAGS) -o $@ $^
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.cc
 	@mkdir -p $(@D)

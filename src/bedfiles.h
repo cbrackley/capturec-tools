@@ -38,6 +38,7 @@ struct bgdline {
     end;
   double value;
   bgdline(const string&);
+  bool operator<(const bgdline&) const;  
   double midpoint();
 
 private:
