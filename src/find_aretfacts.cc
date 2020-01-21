@@ -88,11 +88,11 @@ int main(int argc, char *argv[]) {
   }
 
   // test variables
-  if ( indir.size()!=2 ) {
+  if ( indir.size()<2 ) {
       cerr<<"Not enough input dirs"<<endl;
       exit(EXIT_FAILURE);
   }
-  if ( outdir.size()!=2 ) {
+  if ( outdir.size()<2 ) {
       cerr<<"Not enough output dirs"<<endl;
       exit(EXIT_FAILURE);
   }
@@ -114,6 +114,7 @@ int main(int argc, char *argv[]) {
   for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
     cout<<"   "<<*it<<"    --->   "<<outdir[*it]<<endl;
   }
+  cout<<"Where an artefact is a read value greater than "<<factor<<" times the mean of the other valies"<<endl;
 
   // set up rest of variables
   ifstream inf;
@@ -123,12 +124,14 @@ int main(int argc, char *argv[]) {
   map<string, set<bgdline> > input_rep;
   map<double,  datapoint> data;
 
+  int counter=0;
+
   double sum,
     meanoftherest;
 
   // test output dir exists and files do not
   for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
-    if ( DirExist(outdir[*it]) ) {
+    if ( !DirExist(outdir[*it]) ) {
       cerr<<"Cannot find directory "<<outdir[*it]<<endl;
       exit(EXIT_FAILURE);
     }
@@ -142,6 +145,7 @@ int main(int argc, char *argv[]) {
 
   // load inputs into memory
   for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
+    cout<<"Loading "<<*it+"/captured_normalizedpileup_"+target+".bdg"<<endl;
     inf.open( (*it+"/captured_normalizedpileup_"+target+".bdg").c_str() );
     if ( !inf.good() ) {
       cerr<<"Cannot open file "<<*it+"/captured_normalizedpileup_"+target+".bdg"<<endl;
@@ -184,6 +188,8 @@ int main(int argc, char *argv[]) {
       if ( it->second.value[*REPit] > factor*meanoftherest ) {
 	// it is an artefact
 	it->second.artef[*REPit] = true;
+	//cout<<it->second.value[*REPit] <<" "<< factor*meanoftherest <<endl;
+	counter++;
       } else {
 	// it is not
 	it->second.artef[*REPit] = false;
@@ -191,6 +197,7 @@ int main(int argc, char *argv[]) {
     }
   }
  
+  cout<<"Found "<<counter<<" artefacts"<<endl;
 
   // copy input rawpileups into output rawpileups  
   for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
