@@ -32,7 +32,7 @@ bool DirExist(const std::string &s)
 int main(int argc, char *argv[]) {
 
   // get options from command line
-  if (argc<7) {
+  if (argc<9) {
     cout<<"Usage :"<<endl;
     cout<<"       ./find_aretfacts -f indir1 outdir1 -f indir2 outdir2 [-f indir3 outdir3...] -t target -a factor"<<endl;
     cout<<"where       indir1       is a directory with rep1 input files captured_rawpileup_ and captured_normalizedpileup_ files"<<endl;
@@ -100,11 +100,20 @@ int main(int argc, char *argv[]) {
       cerr<<"Must have same number of input and output dirs."<<endl;
       exit(EXIT_FAILURE);
   }
+  if ( target=="" ) {
+      cerr<<"Invalid target."<<endl;
+      exit(EXIT_FAILURE);
+  }
   if ( factor<=0 ) {
       cerr<<"Invalid value for factor."<<endl;
       exit(EXIT_FAILURE);
   }
 
+  // write a message
+  cout<<"Looking for artefacts in target "<<target<<" in directories"<<endl;
+  for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
+    cout<<"   "<<*it<<"    --->   "<<outdir[*it]<<endl;
+  }
 
   // set up rest of variables
   ifstream inf;
