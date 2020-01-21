@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
   // load inputs into memory
   for (set<string>::const_iterator it=indir.begin(); it!=indir.end(); ++it) {
-    cout<<"Loading "<<*it+"/captured_normalizedpileup_"+target+".bdg"<<endl;
+    //cout<<"Loading "<<*it+"/captured_normalizedpileup_"+target+".bdg"<<endl;
     inf.open( (*it+"/captured_normalizedpileup_"+target+".bdg").c_str() );
     if ( !inf.good() ) {
       cerr<<"Cannot open file "<<*it+"/captured_normalizedpileup_"+target+".bdg"<<endl;
