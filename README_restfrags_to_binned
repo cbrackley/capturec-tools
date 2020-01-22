@@ -1,0 +1,31 @@
+#!/bin/bash
+#//***************************************************************************
+#//
+#// Program to generate a "restriction enzyme cut site density" profile 
+#// with different levels of binning and smoothing
+#//
+#//***************************************************************************
+
+# This program uses the capC-MAP software, so this will need to be visible 
+# on the path.
+
+# This is a bash script, so just make executable and run with no arguments to
+# get usage details.
+
+# Because restriction enzyme cut sites are distributed unevenly through the 
+# genome, this can lead to artefacts in CaptureC profiles. By binning and 
+# smoothing the data this can reduce this effect. It can be useful to look 
+# at the profile of cut site density binned and smoothed in the same way as
+# the CaptureC data. Can think of this profile as what you would get if the
+# target were in interact with every point in the genome with equal likelihood.
+
+# A simple sliding window smoothing is performed - see capC-MAP documentation
+# for details.
+
+# Some usage examples:
+
+./restfrags_to_binned.sh /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/dpnII_galGal4.bed /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/galGal4.chrom.sizes chrZ 200 4000 dnpII_bin_200_4000_chrZ.bdg
+
+./restfrags_to_binned.sh /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/dpnII_galGal4.bed /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/galGal4.chrom.sizes chrZ 500 1000 dnpII_bin_500_1000_chrZ.bdg
+
+./restfrags_to_binned.sh /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/dpnII_galGal4.bed /Disk/ds-sopa-personal/cbrackle/genomes/galGal4/galGal4.chrom.sizes chrZ 2000 4000 dnpII_bin_2000_4000_chrZ.bdg
