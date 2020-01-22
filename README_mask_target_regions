@@ -1,0 +1,36 @@
+#!/bin/bash
+#//***************************************************************************
+#//
+#// Program to mask target regions in capC-MAP binned and smoothed profiles
+#//
+#//***************************************************************************
+
+# This script uses the bedtools software, so this will need to be visible 
+# on the path.
+
+# This is a bash script, so just make executable and run with no arguments to
+# get usage details.
+
+# In our data we do not get information about interactions between the targets,
+# which means there are some "gaps".
+# When the profiles are binned and smoothed, this can "smooth out" the gaps,
+# meaning that it can look like there are two broad peaks either side of
+# the gap.
+# This program masks out these "smoothed gap" regions so that it is clearer
+# that there is a gap in the data here.
+# Actually the maked regions are given an interaction value of "-100", while 
+# the rest of the profile has positive values. Then, e.g. in igv, by setting 
+# negative values to have different colour, the positions of the gaps can
+# more easily be seen.
+
+# The script acts on the directory which is output from capC-MAP, and gets 
+# some information from the "config" file and the "targets" file.
+# For evergy binned profile bedGraph, it generates a masked bedGraph, e.g.:
+# captured_bin_200_4000_RPM_probe3.bdg  --> masked_bin_500_1000_RPM_probe3.bdg
+
+# If replicates are combined, will need to run this again on the combined
+# data set.
+
+# Example usage:
+
+./mask_target_regions.sh ../Data/CaptureC/config_capC-MAP_Pool1.txt ../Data/CaptureC/targets_Pool1.bed ../Data/CaptureC/data_wt_G2_rep1_Pool1/
