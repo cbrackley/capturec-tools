@@ -1,0 +1,74 @@
+#!/bin/bash
+#//***************************************************************************
+#//
+#// Program to search and remove artefacts from CaptureC data           
+#// Here an artefact is defined as a restriction enzyme fragment which in one
+#// replicate shows an interaction level which is more than 10 times larger
+#// than the mean interaction level shown in the other replicates
+#//
+#//***************************************************************************
+
+# To compile:
+#
+# If make and a c++ compiler are available, an expecutable can be generated with 
+# the command:
+
+make
+
+
+# The program reads in a target name and a set of capC-MAP data directories, 
+# one for each replicate. It outputs a set of rawpileup files with artefacts 
+# removed, again one for each directory. Need to then run capC-MAP postprocess 
+# to redo the normalisation. Probably want to remove interchromosomal to do 
+# that.
+
+
+# An example work flow is:
+
+# run find_aretfacts
+# ${indir[1]} is the capC-MAP directory for rep1 etc.
+# ${outdir[1]} is a direcotry for find_aretfacts output for rep1 etc.
+while read line
+do
+line=($line)
+target=${line[3]} 
+~/capturec-tools/find_aretfacts -f ${indir[1]} ${outdir[1]} \
+                                -f ${indir[2]} ${outdir[2]} \
+                                -t $target -a 10
+done < targets.bed
+
+# also copy the report and chrom sizes
+for rep in {1,2}
+do
+ awk '{
+   if (A==1) {if (NF>2) {$4=0; $5=$3; OFS="\t"}}
+   if ($2=="target" && $3=="name") {A=1}
+   print
+   }' ${infir[${rep}]}/captured_report.dat > ${outdir[${rep}]}/captured_report.dat
+ cp ${indir[${rep}]}/chrom.sizes ${outdir[${rep}]}/
+done
+
+# normalise and bin
+for rep in {1,2}
+do
+    capC-MAP postprocess -c config.txt -o ${outdir[${rep}]}
+done
+
+
+# to combine replicates will need pairs fils
+for rep in {1,2}
+do
+
+  while read line
+  do
+    line=($line)
+    target=${line[3]} 
+
+    awk '{if ($1!="track") {OFS="\t"
+      for (i=1;i<=$4;i++) {print $1,$2,$3}
+    }}' ${outdir[${rep}]}/captured_rawpileup_${target}.bdg \
+    > ${outdir[${rep}]}/captured_validpairs_${target}.pairs
+
+  done < targets.bed
+
+done
