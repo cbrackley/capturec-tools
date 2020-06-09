@@ -14,7 +14,7 @@
 
 using namespace std;
 
-double get_directoinality(const string &,const bedline &,const int &,const int &);
+pair<double,double>  get_directoinality(const string &,const bedline &,const int &,const int &);
 
 
 #endif

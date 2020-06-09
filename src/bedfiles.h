@@ -38,12 +38,13 @@ struct bgdline {
     end;
   double value;
   bgdline(const string&);
+  bgdline(const string &, const long int &, const long int &,const double &);
   bool operator<(const bgdline&) const;  
-  double midpoint();
+  double midpoint() const;
 
 private:
-  double the_midpoint;
-  bool set_midpoint;
+  mutable double the_midpoint;
+  mutable bool set_midpoint;
 
 };
 

@@ -56,6 +56,13 @@ bgdline::bgdline(const string &line) : set_midpoint(false) {
   sline>>chrom>>start>>end>>value;
 }
 
+bgdline::bgdline(const string &c, const long int &s,
+		 const long int &e,const double &v) : chrom(c), start(s),
+						      end(e), value(v) ,
+						      set_midpoint(false) {}
+
+
+
 bool bgdline::operator<(const bgdline &b) const {
   if ( chrom != b.chrom ) {
     return chrom<b.chrom;
@@ -66,7 +73,7 @@ bool bgdline::operator<(const bgdline &b) const {
   }
 }
 
-double bgdline::midpoint() {
+double bgdline::midpoint() const {
   // Find the midpoint (bp) of the region
   if (!set_midpoint) {
     the_midpoint = 0.5*(start+end);

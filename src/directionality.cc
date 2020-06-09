@@ -11,9 +11,13 @@
 #include<fstream>
 #include<sstream>
 #include<cmath>
+#include <tuple>
 
 #include "directionality.h"
 #include "bedfiles.h"
+
+#define HARD_MAX 10000000              // always ignore interactions further than this
+#define HARD_MIN 1000                  // always ignore interactions closer than this
 
 using namespace std;
 
@@ -98,6 +102,17 @@ int main(int argc, char *argv[]) {
 
   }
 
+  // Check optional parameters
+  if ( min_dist < HARD_MIN ) {
+      cerr<<"Error: MIN must be greater or equal to 1000"<<endl;
+      exit(EXIT_FAILURE);
+  }
+  if ( max_dist > HARD_MAX ) {
+      cerr<<"Error: MAX must be less than or equal to 1000"<<endl;
+      exit(EXIT_FAILURE);
+  }
+			   
+
 
   // Set up variables
   ifstream inf;
@@ -106,7 +121,8 @@ int main(int argc, char *argv[]) {
   map<string,string> inputfiles;
 
   string line;
-  double dir;
+  double dir,
+    err;
 
   // Read the targets file
   inf.open( targetsfile.c_str() );
@@ -147,7 +163,7 @@ int main(int argc, char *argv[]) {
   }
   inf.close();
   ouf.open( outputfile.c_str() );
-  ouf<<"# chrom, start, end, targetname, directionality"<<endl;
+  ouf<<"# chrom, start, end, targetname, directionality, error"<<endl;
 
   // Write messages
   cout<<"Finding directionalities for "<<inputfiles.size()<<" targets."<<endl;
@@ -162,12 +178,13 @@ int main(int argc, char *argv[]) {
     if ( !testfile ) {
       cerr<<" Warning : Cannot open file "<<it->second<<" skipping this."<<endl;
     } else {
-      dir = get_directoinality(it->second,targets[it->first],max_dist,min_dist);
+      tie(dir,err) = get_directoinality(it->second,targets[it->first],max_dist,min_dist);
       ouf<<targets[it->first].chrom<<"\t"
 	 <<targets[it->first].start<<"\t"
 	 <<targets[it->first].end<<"\t"
 	 <<it->first<<"\t"
-	 <<dir<<endl;
+	 <<dir<<"\t"
+	 <<err<<endl;
     }
 
   }
@@ -178,13 +195,14 @@ int main(int argc, char *argv[]) {
 }
 
 
-double get_directoinality(const string &file,const bedline &trg,const int &max_dist,const int &min_dist) {
+pair<double,double> get_directoinality(const string &file,const bedline &trg,const int &max_dist,const int &min_dist) {
   // function to calculate the directionality
   ifstream inf;
   string line;
   double dir,
     upstream=0.0,
-    downstream=0.0;
+    downstream=0.0,
+    total_reads=0.0;
   int upwidth=0,
     downwidth=0;
   map<double,double> data;
@@ -215,7 +233,12 @@ double get_directoinality(const string &file,const bedline &trg,const int &max_d
 	if (datapoint.start<minup) {minup=datapoint.start;}
 	if (datapoint.end>maxup) {maxup=datapoint.end;}
     }
-
+    if ( trg.chrom == datapoint.chrom &&
+	 abs(datapoint.midpoint()-trgmid)<HARD_MAX &&
+	 abs(datapoint.midpoint()-trgmid)>HARD_MIN ) {
+      total_reads += datapoint.value;
+    }
+    
   }
   inf.close();
 
@@ -226,5 +249,13 @@ double get_directoinality(const string &file,const bedline &trg,const int &max_d
   downstream /= double(downwidth);
   dir = log(upstream) - log(downstream);
 
-  return dir;
+  // now find an error
+  double p1,p2,er1,er2,erLogRat;
+  p1=upstream/total_reads;
+  er1=p1*(1-p1)/sqrt(total_reads);
+  p2=downstream/total_reads;
+  er2=p2*(1-p2)/sqrt(total_reads);
+  erLogRat = sqrt( (er1/upstream)*(er1/upstream) + (er2/downstream)*(er2/downstream)  );
+  
+  return make_pair(dir,erLogRat);
 }
