@@ -12,6 +12,13 @@ DEPS = $(obj:.o=.d)
 directionality_SRC =	directionality.cc	\
 			bedfiles.cc
 
+direct_derivative_SRC =	direct_derivative.cc	\
+			bedfiles.cc
+
+#prpn_in_window_SRC =	prpn_in_window.cc	\
+#			bedfiles.cc
+
+
 log_reads_v_separation_SRC = 	log_reads_v_separation.cc	\
 				bedfiles.cc
 
@@ -21,7 +28,10 @@ local_v_long_SRC = 	local_v_long.cc	\
 find_aretfacts_SRC =	find_aretfacts.cc	\
 			bedfiles.cc
 
-executables = directionality log_reads_v_separation local_v_long find_aretfacts
+read_stats_SRC =	read_stats.cc	\
+			bedfiles.cc
+
+executables = directionality log_reads_v_separation local_v_long find_aretfacts direct_derivative read_stats #prpn_in_window
 
 all: $(executables)
 
@@ -37,6 +47,16 @@ local_v_long: $(local_v_long_SRC:%.cc=$(OBJDIR)/%.o)
 
 find_aretfacts: $(find_aretfacts_SRC:%.cc=$(OBJDIR)/%.o)
 	$(CXX) $(CFLAGS) -o $@ $^
+
+direct_derivative: $(direct_derivative_SRC:%.cc=$(OBJDIR)/%.o)
+	$(CXX) $(CFLAGS) -o $@ $^
+
+#prpn_in_window: $(prpn_in_window_SRC:%.cc=$(OBJDIR)/%.o)
+#	$(CXX) $(CFLAGS) -o $@ $^
+
+read_stats: $(read_stats_SRC:%.cc=$(OBJDIR)/%.o)
+	$(CXX) $(CFLAGS) -o $@ $^
+
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.cc
 	@mkdir -p $(@D)

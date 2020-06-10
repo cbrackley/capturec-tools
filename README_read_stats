@@ -1,0 +1,90 @@
+#!/bin/bash
+#//***************************************************************************
+#//
+#// Program to calculate some statistics from a set of binned profiles.
+#//
+#// Looks at the first 30Mbp of the chromosome (0 to 30Mbp)
+#// Might be useful for comparisons between replicates.
+#//
+#// Reads binned profiles. The larger the bin size the better
+#// (all profiles should have the same bins)
+#//
+#//***************************************************************************
+
+# To compile:
+#
+# If make and a c++ compiler are available, an executable can be generated with 
+# the command:
+
+make
+
+# The program reads in a bed file which contains a list of targets, and a file
+# which contains a list of data file names.
+
+# The file containing the list of data files should have the following format:
+/path/to/captured_normalizedpileup_probe1.bdg  condition_or_replicate1    nameoftarget1
+/path/to/captured_normalizedpileup_probe2.bdg  condition_or_replicate1    nameoftarget2
+/path/to/captured_normalizedpileup_probe1.bdg  condition_or_replicate2    nameoftarget1
+/path/to/captured_normalizedpileup_probe2.bdg  condition_or_replicate2    nameoftarget2
+
+# where the absolute or relative path to the file is give. The target name must match one
+# of the targets in the targets bed file. Files with the same value of 'condition_or_replicate'
+# will be grouped together.
+
+# Command line options are explained if the program is run with no arguments.
+# An example command line is:
+
+./read_stats -t ../../Data/targets.bed -f example_filelist_withCond.txt -o compare_reps_stats
+
+# This will generate the following output files:
+compare_reps_statsprpn0to30M.dat    # gives the proportion of reads between chrZ:0-30000000 for each probe
+compare_reps_statsprpn20to30M.dat   # gives the proportion of reads between chrZ:0-10000000 for each probe
+compare_reps_statsprpn0to10M.dat    # gives the proportion of reads between chrZ:10000000-20000000 for each probe
+compare_reps_statsprpn10to20M.dat   # gives the proportion of reads between chrZ:20000000-30000000 for each probe
+compare_reps_statsboxplotTo30M.dat  # calculates median, quartiles and whisker lengths for a box plot for each probe
+
+# The results are arranged so that each row is for a different probe,
+# and different columns correspond to different conditions/replicates.
+# These can be used to generate plots which show a set of points for
+# each conditions/replicates, and presumably two sets from different
+# replicates of the same condition should look more alike than two sets
+# from different conditions.
+# Details of what each column is are given in the top of the file.
+
+# As an example, the following gnuplot script will generate plots
+# for two conditions/replicates:
+
+
+gnuplot<<"EOF"
+set term pdf font ",8" size 12cm,6cm
+set output "plots_copareReps.pdf"
+
+set xtics rotate by 45 right
+set bars 2
+set yrange [0:]
+
+set title "propotion of reads from 0 to 30Mbp" offset 0,-0.75
+p "compare_reps_statsprpn0to30M.dat" u 0:2:3:xticlabels(1) w errorlines pt 7 ps 0.25 title "wt GM rep1+2",\
+"" u 0:4:5:xticlabels(1) w errorlines pt 7 ps 0.25 title "noSMC2 GM rep1+2"
+
+set title "propotion of reads from 0 to 10Mbp" offset 0,-0.75
+p "compare_reps_statsprpn0to10M.dat" u 0:2:3:xticlabels(1) w errorlines pt 7 ps 0.25 title "wt GM rep1+2",\
+"" u 0:4:5:xticlabels(1) w errorlines pt 7 ps 0.25 title "noSMC2 GM rep1+2"
+
+set title "propotion of reads from 10 to 20Mbp" offset 0,-0.75
+p "compare_reps_statsprpn10to20M.dat" u 0:2:3:xticlabels(1) w errorlines pt 7 ps 0.25 title "wt GM rep1+2",\
+"" u 0:4:5:xticlabels(1) w errorlines pt 7 ps 0.25 title "noSMC2 GM rep1+2"
+
+set title "propotion of reads from 20 to 30Mbp" offset 0,-0.75
+p "compare_reps_statsprpn20to30M.dat" u 0:2:3:xticlabels(1) w errorlines pt 7 ps 0.25 title "wt GM rep1+2",\
+"" u 0:4:5:xticlabels(1) w errorlines pt 7 ps 0.25 title "noSMC2 GM rep1+2"
+
+set boxwidth 0.2
+set yrange [:]
+nT=system("awk '{if ($1!=\"#\") c++}END{print c}' compare_reps_statsboxplotTo30M.dat")*1
+set xrange [-1:nT]
+set title "distribution of the (normalized) number of reads per restriction frag"
+p "compare_reps_statsboxplotTo30M.dat" u ($0-0.15):3:2:6:5 w candlesticks whiskerbars lc 1 title "wt GM rep1+2", "" u ($0-0.15):4:4:4:4:xticlabels(1) w candlesticks lc 3 notitle,\
+""  u ($0+0.15):8:7:11:10 w candlesticks whiskerbars lc 2 title "wt GM rep1+2", "" u ($0+0.15):9:9:9:9 w candlesticks lc 4 notitle
+
+EOF
